@@ -1,0 +1,3 @@
+[submodule "fft/lib/svg2pts"]
+	path = fft/lib/svg2pts
+	url = https://github.com/vvcaw/svg2pts
