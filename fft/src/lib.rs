@@ -2,11 +2,10 @@ use svg2pts_lib::get_path_from_file;
 use num_complex::Complex;
 use std::f32::consts::PI;
 
-#[allow(dead_code)]
 pub struct FourierCircle {
-    speed: i32,
-    radius: f32,
-    phase: f32,
+    pub speed: i32,
+    pub radius: f32,
+    pub phase: f32,
 }
 
 fn load_file(file: &str) -> Vec<Complex<f32>> {
