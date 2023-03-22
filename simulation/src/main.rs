@@ -1,4 +1,5 @@
 use bevy::{prelude::*, sprite::MaterialMesh2dBundle};
+use bevy_prototype_lyon::prelude::*;
 use fft::fourier_coefficients;
 use std::collections::HashMap;
 use std::f32::consts::PI;
@@ -83,6 +84,7 @@ impl Data {
 fn main() {
     App::new()
         .add_plugins(DefaultPlugins)
+        .add_plugin(ShapePlugin)
         .insert_resource(Data::new("fourier.svg", 0.5))
         .add_startup_system(setup)
         .add_system(frame)
@@ -98,19 +100,14 @@ fn setup(
     commands.spawn(Camera2dBundle::default());
 
     for circle in data.circles.iter() {
-	let x = circle.1.coords.x;
-	let y = circle.1.coords.y;
-
-	commands.spawn((MaterialMesh2dBundle {
-	    mesh: meshes.add(shape::Torus{radius: circle.1.radius, ring_radius: 2., subdivisions_segments: 100, subdivisions_sides: 100}.into()).into(),
-	    material: materials.add(ColorMaterial::from(Color::BLACK)),
-	    transform: Transform {
-		translation: Vec3::new(x, y, 0.),
-		rotation: Quat::from_rotation_x(PI/2.),
+	commands.spawn((
+	    ShapeBundle {
+		path: GeometryBuilder::build_as(&shapes::Circle{radius: circle.1.radius, center: circle.1.coords}),
 		..default()
 	    },
-	    ..default()
-	}, Circle(*circle.0)));
+	    Stroke::new(Color::BLACK, 4.),
+	    Circle(*circle.0)
+	));
     }
 }
 
