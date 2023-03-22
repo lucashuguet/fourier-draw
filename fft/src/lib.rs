@@ -1,14 +1,43 @@
-pub fn add(left: usize, right: usize) -> usize {
-    left + right
+use svg2pts_lib::get_path_from_file;
+use num_complex::Complex;
+use std::f32::consts::PI;
+
+#[allow(dead_code)]
+pub struct FourierCircle {
+    speed: i32,
+    radius: f32,
+    phase: f32,
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
+fn load_file(file: &str) -> Vec<Complex<f32>> {
+    get_path_from_file(file, 0, 5.).iter().map(|(x, y)| {
+	Complex {
+	    re: x.clone() as f32,
+	    im: -y.clone() as f32
+	}
+    }).collect()
+}
 
-    #[test]
-    fn it_works() {
-        let result = add(2, 2);
-        assert_eq!(result, 4);
-    }
+fn calc_coefficient(speed: i32 , points: &Vec<Complex<f32>>) -> Complex<f32> {
+    let i = Complex::new(0., 1.);
+
+    points.iter().enumerate().map(|(index, point)| {
+	point * Complex::exp(-speed as f32 * 2. * PI * i * (index as f32 / points.len() as f32)) * (1. / points.len() as f32)
+    }).sum()
+}
+
+pub fn fourier_coefficients(file: &str, range: Box<dyn Iterator<Item=i32>>) -> Vec<FourierCircle> {
+    let points = load_file(file);
+    
+    range.map(|speed| {
+	let coefficient = calc_coefficient(speed, &points);
+	let radius = coefficient.norm();
+	let phase = coefficient.arg();
+
+	FourierCircle {
+	    speed,
+	    radius,
+	    phase
+	}
+    }).collect()
 }
